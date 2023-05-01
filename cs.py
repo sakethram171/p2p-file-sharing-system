@@ -2,7 +2,6 @@ import os
 import sys
 import json
 import random
-import time
 from socket import *
 from threading import *
 from cryptography.fernet import Fernet
@@ -305,7 +304,7 @@ def peerRequestHandler(peerSock, sockAddr):
                             "IP": activePeers[peer]["IP"],
                             "PORT": activePeers[peer]["PORT"]
                         })
-                    response['message'] = 'SIG_REPLICATE'
+                    response['message'] = 'REP_SUCCESS'
                 allPeersData[cmdEntered[1]]['deleted'] = 'false'
                 peerSock.send(encryptChannel(response))
                 writeLogData(allPeersData, 'allPeersData.json')
@@ -351,44 +350,12 @@ def peerRequestHandler(peerSock, sockAddr):
     activePeers.pop(peerId, None)
     writeLogData(activePeers, 'activePeers.json')
 
-def checkForPeerCompromise():
-    while True:
-        time.sleep(200)
-        for peer, value in activePeers.items():
-            print('Checking for malicious activity in {0}'.format(peer))
-            peerIP = value['IP']
-            peerPort = value['PORT']
-            peerSock = socket(AF_INET, SOCK_STREAM)
-            peerSock.connect((peerIP, int(peerPort)))
-            peerSock.send(encryptChannel({'cmd': 'FileList'}))
-            pRes = decryptChannel(peerSock.recv(1024))
-            fl = False
-
-            #Checking if any file got deleted or any files got added into the file system
-            for filename, attr in allPeersData.items():
-                if fl:
-                    break
-                if 'deleted' not in attr or ('deleted' in attr and attr['deleted'] != 'true'):
-                    if filename not in pRes['file_list']:
-                        fl = True
-
-                elif attr['owner'] != pRes['pId']:
-                    fl = True
-            for file in pRes['file_list']:
-                if fl:
-                    break
-                if file not in allPeersData:
-                    fl = True
-
-            if fl:
-                print('{0} has been compromised'.format(pRes['pId']))
-
 
 def main():
 
     peerRegisterThread = Thread(target = registeringPeer)
     peerRegisterThread.start()
-
+    
     while True:
         peerSock, sockAddr = serverSock.accept()
         peerHandlerThread = Thread(target = peerRequestHandler, args=(peerSock,sockAddr))

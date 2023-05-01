@@ -180,7 +180,7 @@ def connectionHandler():
             for key, value in CSResponse.items():
                 peerIP = value['IP']
                 peerPort = value['PORT']
-                print('Creating {0} @ {1}:{2}'.format(cmdEntered[1], peerIP, peerPort))
+                print('Creating {0} at {1}:{2}'.format(cmdEntered[1], peerIP, peerPort))
                 peerSock = socket(AF_INET, SOCK_STREAM)
                 peerSock.connect((peerIP, int(peerPort)))
                 peerSock.send(encryptChannel(request))
@@ -279,7 +279,7 @@ def connectionHandler():
                 for key, value in CSResponse['repPeerInfo'].items():
                     peerIP = value['IP']
                     peerPort = value['PORT']
-                    print('Writing @ {0}:{1}'.format(peerIP, peerPort))
+                    print('Writing at {0}:{1}'.format(peerIP, peerPort))
                     peerSock = socket(AF_INET, SOCK_STREAM)
                     peerSock.connect((peerIP, int(peerPort)))
                     peerSock.send(encryptChannel({
@@ -288,8 +288,7 @@ def connectionHandler():
                     print('{0}: write to {1} successful'.format(key, cmdEntered[1]))
                     time.sleep(1)
                 CSSock.send(encryptChannel({
-                    'message': 'SUCCESS'
-                }))
+                    'message': 'SUCCESS'}))
 
         elif cmdEntered[0] == 'ls':
             CSResponse = decryptChannel(CSSock.recv(1024))
@@ -308,7 +307,7 @@ def connectionHandler():
             CSResponse = decryptChannel(CSSock.recv(1024))
             if 'error' in CSResponse:
                 print(CSResponse['errorMessage'])
-            elif CSResponse['message'] == 'SIG_REPLICATE':
+            elif CSResponse['message'] == 'REP_SUCCESS':
                 encFileName = encFileMap[cmdEntered[1]]
                 path = os.path.join(directoryPath, peerId, encFileName)
                 request = {}
@@ -329,7 +328,7 @@ def connectionHandler():
                     for eachPeer in CSResponse['peers_to_replicate']:
                         peerIP = eachPeer['IP']
                         peerPort = eachPeer['PORT']
-                        print('Replicating @ {0}:{1}'.format(peerIP, peerPort))
+                        print('Replicating at {0}:{1}'.format(peerIP, peerPort))
                         peerSock = socket(AF_INET, SOCK_STREAM)
                         peerSock.connect((peerIP, int(peerPort)))
                         peerSock.send(encryptChannel(request))
@@ -354,7 +353,7 @@ def connectionHandler():
             for key, value in CSResponse.items():
                 peerIP = value['IP']
                 peerPort = value['PORT']
-                print('Creating @ {0}:{1}'.format(peerIP, peerPort))
+                print('Creating at {0}:{1}'.format(peerIP, peerPort))
                 peerSock = socket(AF_INET, SOCK_STREAM)
                 peerSock.connect((peerIP, int(peerPort)))
                 peerSock.send(encryptChannel(request))
